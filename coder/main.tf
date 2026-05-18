@@ -60,9 +60,7 @@ resource "coder_agent" "main" {
 
       # Wait for Docker daemon (DinD may still be starting on first boot).
       until docker info > /dev/null 2>&1; do sleep 3; done
-      docker compose up -d --quiet-pull
-
-      ~/eventradar/coder/scripts/wait-for-mysql.sh
+      docker compose up -d --quiet-pull --wait
 
       php artisan migrate
       php artisan db:seed AdminUserSeeder
