@@ -1,5 +1,5 @@
 .idea/
-./api/
-./ui/
+api/
+frontend/
 
 .terraform/
