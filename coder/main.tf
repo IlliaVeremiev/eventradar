@@ -51,8 +51,24 @@ resource "coder_agent" "main" {
       git clone https://github.com/IlliaVeremiev/eventradar-api ~/eventradar/api
       git clone https://github.com/IlliaVeremiev/eventradar-ui ~/eventradar/frontend
 
-      cd ~/eventradar/api && composer install && npm install
-      cd ~/eventradar/frontend && npm install
+      cd ~/eventradar/api
+      composer install
+      npm install
+      cp .env.coder .env
+      php artisan key:generate
+      php artisan jwt:secret --force
+
+      # Wait for Docker daemon (DinD may still be starting on first boot).
+      until docker info > /dev/null 2>&1; do sleep 3; done
+      docker compose up -d --quiet-pull
+
+      ~/eventradar/coder/scripts/wait-for-mysql.sh
+
+      php artisan migrate
+      php artisan db:seed AdminUserSeeder
+
+      cd ~/eventradar/frontend
+      npm install
 
       touch ~/.setup_done
       echo "First-start setup complete."
